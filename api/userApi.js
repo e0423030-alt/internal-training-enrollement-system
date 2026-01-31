@@ -2,21 +2,20 @@ require("dotenv").config()
 const exprerss=require("express")
 const bcrypt=require("bcrypt")
 const jwt=require("jsonwebtoken")
-const User=require('../models/userModels') // while i have to ../like this means one folder down
+const User=require('../models/userModel') // while i have to ../like this means one folder down
 
 const router=exprerss.Router()
 
-router.post('/signup',async(req,res) => {
+router.post('/Register',async(req,res) => {
     console.log(req.body)
     const name=req.body.name
     const email=req.body.email
     const role=req.body.role
-    const age=req.body.age
     const password=req.body.password
 
     console.log(name)
 
-    if (!email ||!password){
+    if (!email ||!password|| !role){
         return res.json({"message":"invalid request"})
     }
     const usercheck=await User.findOne({email:email})
@@ -30,8 +29,8 @@ router.post('/signup',async(req,res) => {
         name:name,
         email:email,
         password:hashedPassword,
-        role:role,
-        aga:age
+        role:role
+        
     })
     await user.save()
     return res.json({"message":"sucess"})
@@ -50,7 +49,9 @@ router.post("/login",async(req,res)=>{
     }
     try {
         const token = jwt.sign(
-            { user: user._id },
+            { user: user._id ,
+              role: user.role
+            },
             process.env.SECRETE_CODE,
             { expiresIn: "1h" }
         )
