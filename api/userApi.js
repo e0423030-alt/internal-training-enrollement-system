@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config()
 const exprerss=require("express")
 const bcrypt=require("bcrypt")
 const jwt=require("jsonwebtoken")
