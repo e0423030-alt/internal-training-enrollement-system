@@ -6,7 +6,6 @@ const User=require('../models/userModels') // while i have to ../like this means
 
 const router=exprerss.Router()
 
-
 router.post('/signup',async(req,res) => {
     console.log(req.body)
     const name=req.body.name
