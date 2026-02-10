@@ -3,7 +3,6 @@ const router = express.Router();
 const auth = require("../middlewares/auth");
 const Request = require("../models/requestModel");
 
-
 router.post("/training/create", auth, async (req, res) => {
   const trainingName = req.body.trainingName;
   const description = req.body.description;
