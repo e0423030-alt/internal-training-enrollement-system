@@ -1,23 +1,37 @@
-const mongoose=require("mongoose")
+const mongoose = require("mongoose");
+
 const requestSchema = new mongoose.Schema({
-    training: String,
-    description: String,
-    status: String,
-    createdon: {
-        type: Date,
-        default: Date.now
-    },
-    enrolledon: Date,
-    createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
-    enrolledBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
+  trainingName: {
+    type: String,
+    required: true
+  },
 
-})
+  description: {
+    type: String,
+    required: true
+  },
 
-const Request=mongoose.model("Request",requestSchema)
-module.exports=Request
+  seatLimit: {
+    type: Number,
+    required: true
+  },
+
+  enrolledCount: {
+    type: Number,
+    default: 0
+  },
+
+  trainer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+
+  createdOn: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const Request = mongoose.model("Request", requestSchema);
+module.exports = Request;

@@ -5,7 +5,7 @@ const userSchema=mongoose.Schema({
     email:String,
     role:{
         type:String,
-        enum:["EMPLOYEE","TRIANER"]
+        enum:["EMPLOYEE","TRAINER"]
     },
     password:String
 },
