@@ -5,9 +5,7 @@ const Request = require("../models/requestModel");
 const Enrollment = require("../models/enrollmentmodel");
 
 
-// ===============================
-// 1️⃣ TRAINER - CREATE TRAINING
-// ===============================
+
 router.post("/training/create", auth, async (req, res) => {
   try {
     if (req.user.role !== "TRAINER") {
@@ -40,9 +38,7 @@ router.post("/training/create", auth, async (req, res) => {
 });
 
 
-// ===============================
-// 2️⃣ TRAINER - VIEW MY TRAININGS
-// ===============================
+
 router.get("/training/my-trainings", auth, async (req, res) => {
   try {
     if (req.user.role !== "TRAINER") {
@@ -58,16 +54,14 @@ router.get("/training/my-trainings", auth, async (req, res) => {
 });
 
 
-// ===============================
-// 3️⃣ EMPLOYEE - VIEW ALL TRAININGS
-// ===============================
+
 router.get("/training/all", auth, async (req, res) => {
   try {
     if (req.user.role !== "EMPLOYEE") {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    const trainings = await Request.find();
+    const trainings = await Request.find({ status: "AVAILABLE" });
     res.json({ trainings });
 
   } catch (err) {
@@ -76,9 +70,7 @@ router.get("/training/all", auth, async (req, res) => {
 });
 
 
-// ===============================
-// 4️⃣ EMPLOYEE - ENROLL IN TRAINING
-// ===============================
+
 router.post("/training/enroll/:id", auth, async (req, res) => {
   try {
     if (req.user.role !== "EMPLOYEE") {
@@ -91,12 +83,12 @@ router.post("/training/enroll/:id", auth, async (req, res) => {
       return res.status(404).json({ message: "Training not found" });
     }
 
-    // 🔥 CRITICAL BUSINESS RULE
+    
     if (training.enrolledCount >= training.seatLimit) {
       return res.status(400).json({ message: "Seats are full" });
     }
 
-    // Check if already enrolled
+    
     const alreadyEnrolled = await Enrollment.findOne({
       employee: req.user._id,
       training: training._id
@@ -106,7 +98,7 @@ router.post("/training/enroll/:id", auth, async (req, res) => {
       return res.status(400).json({ message: "Already enrolled" });
     }
 
-    // Create enrollment
+    
     const enrollment = new Enrollment({
       employee: req.user._id,
       training: training._id,
@@ -115,9 +107,25 @@ router.post("/training/enroll/:id", auth, async (req, res) => {
 
     await enrollment.save();
 
-    // Increase count
-    training.enrolledCount += 1;
-    await training.save();
+  const updatedTraining = await Request.findOneAndUpdate(
+  {
+    _id: req.params.id,
+    enrolledCount: { $lt: training.seatLimit }
+  },
+  {
+    $inc: { enrolledCount: 1 }
+  },
+  { new: true }
+);
+
+if (!updatedTraining) {
+  return res.status(400).json({ message: "Seats are full" });
+}
+
+if (updatedTraining.enrolledCount === updatedTraining.seatLimit) {
+  updatedTraining.status = "FULL";
+  await updatedTraining.save();
+}
 
     res.json({ message: "Enrollment successful" });
 
@@ -127,9 +135,7 @@ router.post("/training/enroll/:id", auth, async (req, res) => {
 });
 
 
-// ===============================
-// 5️⃣ EMPLOYEE - VIEW MY ENROLLMENTS
-// ===============================
+
 router.get("/training/my-enrollments", auth, async (req, res) => {
   try {
     if (req.user.role !== "EMPLOYEE") {

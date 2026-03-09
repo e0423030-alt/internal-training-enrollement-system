@@ -1,10 +1,10 @@
 require("dotenv").config()
-const exprerss=require("express")
+const express=require("express")
 const bcrypt=require("bcrypt")
 const jwt=require("jsonwebtoken")
 const User=require('../models/userModel') // while i have to ../like this means one folder down
 
-const router=exprerss.Router()
+const router=express.Router()
 
 router.post('/Register',async(req,res) => {
     console.log(req.body)
@@ -35,30 +35,40 @@ router.post('/Register',async(req,res) => {
     await user.save()
     return res.json({"message":"sucess"})
 })
-router.post("/login",async(req,res)=>{
-    const user=await User.findOne({email:req.body.email})
-    if(!user){
-        return res.json({message:"Email is invalid"})
-    }
-    console.log(user,user.password, req.body.password)
-    
-    const isPasswordMatching= await bcrypt.compare(req.body.password,user.password)
-    
-    if(!isPasswordMatching){
-        return res.json({"message":"password invalid"})
-    }
-    try {
+router.post("/login", async (req, res) => {
+    try{
+        const user = await User.findOne({ email: req.body.email })
+
+        if (!user) {
+            return res.json({ message: "Email is invalid" })
+        }
+
+        const isPasswordMatching = await bcrypt.compare(
+            req.body.password,
+            user.password
+        )
+
+        if (!isPasswordMatching) {
+            return res.json({ message: "password invalid" })
+        }
+
         const token = jwt.sign(
-            { _id: user._id ,
-              role: user.role
+            {
+                _id: user._id,
+                role: user.role
             },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         )
-        return res.json({ message: "login successfull", token: token })
-        } catch (err) {
-            console.log(err)
-            return res.json({"message":"server error"})
+
+        return res.json({
+            message: "login successful",
+            token: token
+        })
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: "server error" })
     }
-}) 
+})
 module.exports=router

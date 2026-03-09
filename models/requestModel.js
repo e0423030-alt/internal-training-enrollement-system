@@ -31,6 +31,8 @@ const requestSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+},{
+  timestamps: true
 });
 
 const Request = mongoose.model("Request", requestSchema);
