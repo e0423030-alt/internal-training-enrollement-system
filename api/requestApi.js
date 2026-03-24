@@ -106,6 +106,7 @@ router.post("/training/enroll/:id", auth, async (req, res) => {
     });
 
     await enrollment.save();
+    console.log("SAVED ENROLLMENT:", enrollment);  
 
   const updatedTraining = await Request.findOneAndUpdate(
   {
