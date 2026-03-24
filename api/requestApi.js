@@ -144,7 +144,7 @@ router.get("/training/my-enrollments", auth, async (req, res) => {
 
     const enrollments = await Enrollment.find({ employee: req.user._id })
       .populate("training");
-
+    console.log(enrollments); 
     res.json({ enrollments });
 
   } catch (err) {
