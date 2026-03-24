@@ -61,7 +61,7 @@ router.get("/training/all", auth, async (req, res) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    const trainings = await Request.find({ status: "AVAILABLE" });
+    const trainings = await Request.find();
     res.json({ trainings });
 
   } catch (err) {
